@@ -85,13 +85,16 @@ complete, searchable documentation of every feature from a user's point of view.
 
 ## Installing
 
-Download the latest `.pkg` from [Releases](../../releases) and run it. The installer and the app inside
-it are both code-signed with a Developer ID, but **not notarized** — macOS Gatekeeper will still flag a
-downloaded, unnotarized app on first launch. Open System Settings ▸ Privacy & Security after the first
-blocked attempt and choose "Open Anyway" next to the app's name; see TROUBLESHOOTING.md if that option
-doesn't appear.
+Download the latest `.pkg` from [Releases](../../releases) and run it. Requires Apple Silicon (arm64)
+and macOS 26 or later.
 
-Prefer to build from source instead? See `BUILDING.md`.
+The installer and the app inside it are both code-signed with a Developer ID, but **not notarized** —
+macOS Gatekeeper will still flag a downloaded, unnotarized app on first launch. Open System Settings ▸
+Privacy & Security after the first blocked attempt and choose "Open Anyway" next to the app's name; see
+TROUBLESHOOTING.md if that option doesn't appear.
+
+Prefer not to run an unnotarized download, or need an Intel build? Build it from source instead — see
+`BUILDING.md`. You'll need Xcode (for the Swift app) and the .NET SDK (for the file-reading Helper).
 
 ## Status
 
