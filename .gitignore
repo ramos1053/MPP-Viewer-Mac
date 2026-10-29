@@ -1,0 +1,20 @@
+####################
+# .NET (Helper/)
+####################
+Helper/bin/
+Helper/obj/
+
+####################
+# Swift (App/)
+####################
+App/.build/
+App/.swiftpm/
+.DS_Store
+
+####################
+# Packaging output (BUILDING.md's distributable .pkg steps) — built artifacts, not source
+####################
+dist/
+*.app
+*.pkg
+*-component.pkg
