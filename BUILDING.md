@@ -125,18 +125,53 @@ required). It is **not notarized** — see TROUBLESHOOTING.md for what that mean
 4. **Code-sign everything, inside out** — every Mach-O binary/dylib under `Helper/`, then the main app
    executable, then the bundle itself, each with Hardened Runtime and the same Developer ID Application
    identity throughout (consistent signing across every loaded library is what lets Hardened Runtime's
-   library validation pass without needing to disable it):
+   library validation pass without needing to disable it) — **except `MppHelper` itself**, which needs
+   one extra entitlement (`Helper/entitlements.plist`, already in the repo):
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+   <plist version="1.0">
+   <dict>
+       <key>com.apple.security.cs.allow-jit</key><true/>
+       <key>com.apple.security.cs.allow-unsigned-executable-memory</key><true/>
+   </dict>
+   </plist>
+   ```
+
+   **Why**: .NET's CoreCLR JIT-compiles at startup, which needs executable+writable memory pages —
+   something Hardened Runtime blocks by default. Without this entitlement, `MppHelper` gets killed the
+   instant it tries to start (`Failed to create CoreCLR, HRESULT: 0x80070008`, exit code 137/SIGKILL),
+   and the app shows "Helper process closed its output unexpectedly" with no further detail. This never
+   shows up running the dev build (`run-dev.sh` never applies Hardened Runtime at all), only once the
+   Helper is actually signed for distribution — confirmed the hard way, by shipping v0.1.0 without it.
 
    ```
-   find "MPPViewer.app/Contents/Resources/Helper" -type f \( -perm +111 -o -name "*.dylib" \) -print0 \
+   find "MPPViewer.app/Contents/Resources/Helper" -type f \( -perm +111 -o -name "*.dylib" \) \
+       ! -name "MppHelper" -print0 \
      | xargs -0 -I{} codesign --force --timestamp --options runtime \
          --sign "Developer ID Application: <Your Name> (<Team ID>)" "{}"
+   codesign --force --timestamp --options runtime \
+     --entitlements Helper/entitlements.plist \
+     --sign "Developer ID Application: <Your Name> (<Team ID>)" \
+     "MPPViewer.app/Contents/Resources/Helper/MppHelper"
    codesign --force --timestamp --options runtime \
      --sign "Developer ID Application: <Your Name> (<Team ID>)" "MPPViewer.app/Contents/MacOS/MPPViewerMac"
    codesign --force --timestamp --options runtime \
      --sign "Developer ID Application: <Your Name> (<Team ID>)" "MPPViewer.app"
    codesign --verify --deep --strict --verbose=2 "MPPViewer.app"
    ```
+
+   Before packaging, actually run the signed Helper directly and confirm it responds — don't rely on
+   `codesign --verify` alone, since a valid signature says nothing about whether Hardened Runtime will
+   let the process actually execute:
+
+   ```
+   echo '{"id":1,"command":"new"}' | "MPPViewer.app/Contents/Resources/Helper/MppHelper"
+   ```
+
+   A healthy response looks like `{"id":1,"ok":true,"result":{...}}`. If it prints a CoreCLR error and
+   exits 137 instead, the entitlement above didn't make it onto `MppHelper`'s signature.
 
 5. **Build and sign the installer package:**
 

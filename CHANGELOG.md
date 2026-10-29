@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.1] - 2026-10-29
+
+### Fixed
+- **The packaged app failed to open any project at all**, showing "Helper process closed its output
+  unexpectedly." The signed Helper (self-contained .NET) was being killed by the OS on startup —
+  CoreCLR's JIT needs executable+writable memory pages, which Hardened Runtime blocks without an
+  explicit entitlement. Added `Helper/entitlements.plist` and sign `MppHelper` with it. If you hit this
+  on v0.1.0, download v0.1.1 instead.
+
 ## [0.1.0] - 2026-10-29
 
 ### Added

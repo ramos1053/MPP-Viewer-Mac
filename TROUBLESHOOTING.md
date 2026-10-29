@@ -86,6 +86,16 @@ flag directly from Terminal (only do this for a `.pkg`/`.app` you actually trust
 xattr -d com.apple.quarantine /path/to/MPPViewer.app
 ```
 
+### The app opens but shows "Helper process closed its output unexpectedly" in red
+
+This was a real bug in the v0.1.0 `.pkg` release, fixed in v0.1.1 — if you're on v0.1.1 or later from
+[Releases](../../releases), you shouldn't see it; download the latest release instead of reusing an
+older download. It happened because the signed Helper (`MppHelper`, a self-contained .NET executable)
+was getting silently killed by the OS the instant it tried to start, before it could write anything —
+.NET's CoreCLR JIT-compiles at startup, which Hardened Runtime blocks by default without an explicit
+entitlement. See BUILDING.md's signing section if you're building your own `.pkg` from source — it now
+documents the exact entitlement `MppHelper` needs and how to confirm it landed before packaging.
+
 ### Why this project isn't notarized
 
 A deliberate choice, not an oversight — notarization requires submitting the build to Apple's servers
