@@ -31,7 +31,8 @@ This is a macOS port of an existing Windows WPF/.NET application (`MPP-Viewer`).
 - **Project-wide budget tracking** — planned vs. progress-weighted "earned" cost, status, per-resource
   breakdown — using the same Budget Resource / Project Summary Task convention Microsoft Project itself
   uses, so a budget set here round-trips correctly if the file is later opened there.
-- **Export and print** — CSV of the full task list; PDF, PNG, or direct printing of a Timeline snapshot.
+- **Export and print** — CSV of the full task list; a PDF of the entire project (the real Gantt chart,
+  every task, sized to fit); PNG or direct printing of a condensed Timeline snapshot.
 - **Find**, Find Next/Previous, and Find and Replace across task names and notes.
 - A full in-app **Help system** (Help menu, or ⌘?) — searchable documentation for every feature, option,
   and keyboard shortcut.

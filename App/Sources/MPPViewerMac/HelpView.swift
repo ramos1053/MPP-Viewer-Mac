@@ -520,20 +520,33 @@ extension HelpView {
             """
         ),
         HelpTopic(
-            title: "Export Timeline as PDF / PNG",
-            keywords: ["pdf export", "png export", "image export"],
+            title: "Export Project as PDF",
+            keywords: ["pdf export", "image export", "gantt export"],
             body: """
-            File ▸ Export Timeline as PDF… / as PNG… renders a snapshot of the Timeline view's own \
-            condensed, whole-project overview (not whatever view happens to be on screen) to an image \
-            or PDF file, sized to fit everything with nothing scrolled or clipped.
+            File ▸ Export Project as PDF… renders the real, complete Gantt chart — every task at \
+            every outline level, with bars, dependency links, and critical-path coloring, not a \
+            condensed overview — to a single PDF page sized to fit the whole project with nothing \
+            clipped or scrolled. A PDF page has no size limit the way print or an image does, so a \
+            large project becomes a correspondingly large page; zoom in your PDF viewer to read it.
+            """
+        ),
+        HelpTopic(
+            title: "Export Timeline as PNG",
+            keywords: ["png export", "image export"],
+            body: """
+            File ▸ Export Timeline as PNG… renders a snapshot of the Timeline view's own condensed, \
+            top-level-only overview (not whatever view happens to be on screen) to an image file, \
+            sized to fit everything with nothing scrolled or clipped. Unlike PDF export above, this \
+            doesn't include every task — PNG's a fixed-resolution raster image, not a page that can \
+            grow arbitrarily large, so it stays scoped to the condensed overview.
             """
         ),
         HelpTopic(
             title: "Printing",
             keywords: ["print", "command-p", "print timeline"],
             body: """
-            File ▸ Print Timeline… (⌘P) sends the same Timeline snapshot used for PDF/PNG export to the \
-            standard macOS print panel.
+            File ▸ Print Timeline… (⌘P) sends the same condensed Timeline snapshot used for PNG export \
+            (not the full-project Gantt PDF export uses) to the standard macOS print panel.
             """
         ),
     ])

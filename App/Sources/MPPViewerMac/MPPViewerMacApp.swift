@@ -47,14 +47,15 @@ struct MPPViewerMacApp: App {
                     .keyboardShortcut("s", modifiers: [.command, .shift])
                     .disabled(model.tasks.isEmpty || model.isSaving)
             }
-            // CSV works off the raw task list regardless of what's on screen; PDF/PNG/Print all
-            // render a TimelineOverviewView snapshot — see ExportService's doc comment for why that
-            // one view, specifically, rather than whatever's currently active.
+            // CSV works off the raw task list regardless of what's on screen. PDF renders the real,
+            // complete Gantt chart (every task). PNG/Print render a condensed TimelineOverviewView
+            // snapshot instead — see ExportService's doc comment for why PNG/Print specifically stay
+            // scoped to that one view rather than whatever's currently active.
             CommandGroup(after: .saveItem) {
                 Divider()
                 Button("Export as CSV…") { exportCSV() }
                     .disabled(model.tasks.isEmpty)
-                Button("Export Timeline as PDF…") { exportPDF() }
+                Button("Export Project as PDF…") { exportPDF() }
                     .disabled(model.tasks.isEmpty || model.dateRange == nil)
                 Button("Export Timeline as PNG…") { exportPNG() }
                     .disabled(model.tasks.isEmpty || model.dateRange == nil)

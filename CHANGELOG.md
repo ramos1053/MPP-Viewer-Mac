@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.2] - 2026-10-29
+
+### Fixed
+- **PDF export produced blank pages.** `ImageRenderer.proposedSize` was never being set, so it fell
+  back to SwiftUI's default of 10×10 points — content rendered correctly, just squeezed into a page
+  far smaller than a single screen pixel. Fixed by setting it explicitly to the real content size.
+
+### Changed
+- **PDF export now covers the entire project**, not just the condensed Timeline overview — it's the
+  real Gantt chart, every task at every outline level, bars/links/critical-path coloring included,
+  sized to fit the whole thing on one page. PNG export and Print remain scoped to the condensed
+  Timeline snapshot (a raster image and a print page both have practical size limits a PDF doesn't).
+
 ## [0.1.1] - 2026-10-29
 
 ### Fixed

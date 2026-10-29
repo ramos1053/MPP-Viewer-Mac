@@ -2,13 +2,15 @@ import SwiftUI
 import AppKit
 import UniformTypeIdentifiers
 
-/// Export/print support: a CSV of the raw task list (works regardless of what's on screen), and
-/// PDF/PNG/print of a rendered snapshot. The snapshot targets `TimelineOverviewView` specifically
-/// rather than whatever view happens to be active — it's the one view in this app built to show
-/// the *whole* project at once with no scroll state, no synced dual-NSScrollView machinery (unlike
-/// Gantt), and no week-paging (unlike Calendar/Task Usage) to decide a "current page" for, so it's
-/// the only one that renders the same complete, correct thing regardless of when export is
-/// triggered — a deliberate, narrower scope than "export whatever's currently shown."
+/// Export/print support: a CSV of the raw task list (works regardless of what's on screen); a PDF
+/// of the *entire* project (every task, via the real Gantt chart drawer — see
+/// `fullProjectSnapshotView` below); and PNG/print of a condensed Timeline snapshot. The PNG/Print
+/// snapshot targets `TimelineOverviewView` specifically rather than whatever view happens to be
+/// active — it's the one view in this app built to show the whole project at once with no scroll
+/// state, no synced dual-NSScrollView machinery (unlike Gantt), and no week-paging (unlike
+/// Calendar/Task Usage) to decide a "current page" for. PDF export doesn't have that constraint (a
+/// PDF page isn't bound by print-page or raster-image size the way PNG/Print are), so it renders
+/// the real, complete Gantt chart instead of the condensed overview.
 enum ExportService {
     // ---- CSV ----------------------------------------------------------------------------------
 
@@ -77,11 +79,38 @@ enum ExportService {
 
     /// A single-page PDF sized exactly to the rendered content — simpler and more useful for a
     /// project timeline than forcing a fixed Letter/A4 page and clipping or shrinking to fit.
+    /// Unlike the condensed Timeline snapshot above (used for PNG/Print, which have no natural way
+    /// to paginate or usefully display a page this large), PDF export renders the *real* Gantt
+    /// chart — every task at every outline level, bars/links/critical-path tint and all, via the
+    /// same `TimelineCanvas` the live Gantt view itself draws with — at its full natural content
+    /// size. A PDF page has no practical size ceiling the way print or a raster image does, so "the
+    /// whole project on one page, zoom in a PDF viewer to read it" is a reasonable, simple design,
+    /// consistent with this file's existing "size exactly to content, not a fixed page" philosophy.
+    private static func fullProjectSnapshotView(tasks: [GanttTask], range: ClosedRange<Date>, showCriticalPath: Bool) -> some View {
+        TimelineCanvas(
+            tasks: tasks, tasksVersion: 0, range: range, pixelsPerDay: 12, // matches ContentView's own default Gantt zoom
+            selectedTaskId: nil, onSelect: { _ in }, showCriticalPath: showCriticalPath)
+    }
+
     @MainActor
     static func pdfData(tasks: [GanttTask], range: ClosedRange<Date>, showCriticalPath: Bool) -> Data? {
-        let r = renderer(tasks: tasks, range: range, showCriticalPath: showCriticalPath)
+        let size = CGSize(
+            width: ganttContentWidth(range: range, pixelsPerDay: 12),
+            height: ganttContentHeight(taskCount: tasks.count))
+        let r = ImageRenderer(content: fullProjectSnapshotView(tasks: tasks, range: range, showCriticalPath: showCriticalPath))
+        r.scale = 2
+        // `ImageRenderer.proposedSize` is read-write, and `render(renderer:)` uses whatever's
+        // currently *set* there to decide the layout size it hands the content — it is never
+        // inferred from the view's own `.frame()` modifier. Left unset (as this code originally
+        // did, reading it instead of writing it), it stays `.unspecified`, and
+        // `replacingUnspecifiedDimensions()` with no argument defaults to a bare 10×10 points —
+        // real content rendered correctly, just squeezed into a page smaller than a single screen
+        // pixel, which is what "blank" PDF pages actually were. Must be set explicitly, to the same
+        // size `TimelineCanvas`/`fullProjectSnapshotView` itself resolves to via
+        // `ganttContentWidth`/`ganttContentHeight`.
+        r.proposedSize = ProposedViewSize(size)
         let data = NSMutableData()
-        var mediaBox = CGRect(origin: .zero, size: r.proposedSize.replacingUnspecifiedDimensions())
+        var mediaBox = CGRect(origin: .zero, size: size)
         guard let consumer = CGDataConsumer(data: data as CFMutableData),
               let context = CGContext(consumer: consumer, mediaBox: &mediaBox, nil)
         else { return nil }
