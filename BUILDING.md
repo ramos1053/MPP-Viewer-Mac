@@ -59,6 +59,17 @@ This is a plain Swift package build — no Xcode project file, no `.xcodeproj` t
 `App/Package.swift` directly in Xcode if you want Xcode's editor/debugger; `swift build`/`swift run` from
 the command line work the same either way.
 
+## Run the scheduler tests
+
+```
+cd App
+swift test
+```
+
+The Swift Testing suite in `App/Tests/MPPViewerMacTests` checks dependency scheduling and critical
+paths using fixed UTC dates. It does not launch the app, start the .NET Helper, or open project files.
+To run only this suite, use `swift test --filter SchedulerTests`.
+
 ## Run it
 
 ```

@@ -11,6 +11,8 @@ let package = Package(
         // actual source compiled in Swift 5 mode so it isn't also opted into Swift 6's strict
         // concurrency checking, which has nothing to do with this change and would ripple across
         // every `Equatable`/closure-capturing view in the app.
-        .executableTarget(name: "MPPViewerMac", swiftSettings: [.swiftLanguageMode(.v5)])
+        .executableTarget(name: "MPPViewerMac", swiftSettings: [.swiftLanguageMode(.v5)]),
+        .testTarget(name: "MPPViewerMacTests", dependencies: ["MPPViewerMac"],
+                    swiftSettings: [.swiftLanguageMode(.v5)])
     ]
 )
