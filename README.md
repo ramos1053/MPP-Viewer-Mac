@@ -71,9 +71,10 @@ The app is two processes:
   forward-pass scheduler.
 - **`Helper/`**: a .NET console application that does all file reading and writing, using the
   [MPXJ.Net](https://www.mpxj.org/) library. The Swift app launches it as a subprocess and talks to it
-  over a private, local, line-delimited JSON protocol on stdin/stdout. Nothing is sent over the network;
-  no project file data leaves the machine as part of normal use. The distributed `.pkg` bundles a
-  self-contained publish of the Helper, so installing it does not require a separate .NET install.
+  over a private [line-delimited JSON protocol](docs/protocol.md) on stdin/stdout. Nothing is sent
+  over the network; no project file data leaves the machine as part of normal use. The distributed
+  `.pkg` bundles a self-contained publish of the Helper, so installing it does not require a separate
+  .NET install.
 
 See `BUILDING.md` for how to build and run both halves from source, and the in-app Help (Help menu) for
 complete, searchable documentation of every feature from a user's point of view.
