@@ -109,14 +109,14 @@ complete, searchable documentation of every feature from a user's point of view.
 
 ## Installing
 
-Download a `.pkg` from [Releases](../../releases) and run it. Installers are per architecture: the one
-with `x64` in its name is for **Intel Macs**, the other (named `arm64`, or with no architecture in the
-name on older releases) is for **Apple Silicon**. Apple menu ▸ About This Mac shows which chip you have.
-Requires macOS 26 or later.
+Download a `.pkg` from [Releases](../../releases) and run it. Each release has one installer per
+architecture: `MPPViewer-<version>-macOS-arm64.pkg` for **Apple Silicon** and
+`MPPViewer-<version>-macOS-x64.pkg` for **Intel Macs** (releases up to 0.1.2 have a single, unlabelled
+Apple Silicon installer). Apple menu ▸ About This Mac shows which chip you have. Requires macOS 26 or later.
 
-**Intel status:** the Intel installer is published as a pre-release. It has been built, signed and
-checked under Rosetta 2 on an Apple Silicon Mac, but not yet run on a real Intel Mac. If you have one,
-please try it and report back on [issue 3](../../issues/3).
+**Intel status:** the Intel installer has been built, signed and checked under Rosetta 2 on an Apple
+Silicon Mac, but not yet run on a real Intel Mac. If you have one, please try it and report back on
+[issue 3](../../issues/3).
 
 The installer and the app inside it are both code-signed with a Developer ID, but **not notarized**.
 macOS Gatekeeper will still flag a downloaded, unnotarized app on first launch. Open System Settings ▸

@@ -1,18 +1,16 @@
 # Changelog
 
-## [Unreleased]
+## [0.1.3] - 2026-11-23
 
 ### Added
-- **Intel (x64) installer, as a pre-release (0.1.3).** Separate per-architecture `.pkg` files, each with
-  a Helper built for its architecture. Signed with a Developer ID, not notarized. Verified under
-  Rosetta 2 only, not yet on native Intel hardware (see issue 3). No Apple Silicon 0.1.3 installer has
-  been published; Apple Silicon users stay on 0.1.2.
+- **Intel (x64) installer.** Releases now ship separate `-arm64` and `-x64` `.pkg` files, each with a
+  Helper built for its architecture. Signed with a Developer ID, not notarized. The Intel build has been
+  verified under Rosetta 2 only, not yet on native Intel hardware (see issue 3).
 - README now opens with a one-paragraph summary and screenshots.
 - `package.sh` builds and (optionally) signs one architecture's app and installer in a single step.
 
 ### Changed
 - The Helper now targets .NET 10 and MPXJ.Net 16.11.0 (the 0.1.2 installer shipped .NET 9 / MPXJ 16.10.0).
-  The Intel pre-release is the first installer built this way.
 - BUILDING.md now lists .NET SDK 10.0 as the prerequisite, matching the Helper's `net10.0` target.
 
 ## [0.1.2] - 2026-10-29
