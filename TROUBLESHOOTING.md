@@ -164,3 +164,20 @@ non-working days fall inside the affected span.
   something is built the way it is, not just what it does — particularly around the toolbar, scheduler,
   and Helper subprocess, which have all had real, non-obvious bugs surface during development. Read the
   doc comment on a function before assuming its current shape is arbitrary.
+
+## Installing
+
+### Which installer do I download?
+
+Use the `-arm64` installer on Apple Silicon Macs (M1 and later) and the `-x64` installer on Intel Macs.
+Apple menu ▸ About This Mac shows "Chip" (Apple M…) or "Processor" (Intel). On an Apple Silicon Mac the
+Intel app also runs, under Rosetta 2, but the arm64 one is the right choice there.
+
+### "Helper process closed its output unexpectedly" right after installing
+
+The most likely cause is the wrong architecture's installer (an arm64 app cannot run on an Intel Mac at
+all). Reinstall the matching installer. If the architecture is right, run the bundled Helper directly to see its error:
+
+```
+echo '{"id":1,"command":"new"}' | /Applications/MPPViewer.app/Contents/Resources/Helper/MppHelper
+```

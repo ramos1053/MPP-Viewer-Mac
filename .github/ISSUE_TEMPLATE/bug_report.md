@@ -16,6 +16,7 @@ A short description of the problem.
 
 **Your setup**
 - macOS version:
+- Mac chip (Apple Silicon or Intel):
 - App version:
 
 Please remove personal data from logs and screenshots before posting.

@@ -9,7 +9,7 @@ The app is two separate builds that have to happen in order: the .NET Helper fir
 - **Xcode**, with its command-line tools. Developed against Xcode 27 / Swift 6.4. Install from the App
   Store or [developer.apple.com](https://developer.apple.com/xcode/), then run
   `xcode-select --install` if the command-line tools aren't already present.
-- **.NET SDK 9.0**. Install from [dotnet.microsoft.com](https://dotnet.microsoft.com/download). Confirm
+- **.NET SDK 10.0** (the Helper targets `net10.0`). Install from [dotnet.microsoft.com](https://dotnet.microsoft.com/download). Confirm
   with `dotnet --version`. If `dotnet` isn't on your `PATH` after installing, see TROUBLESHOOTING.md.
 
 No other dependencies are required. Swift packages (none beyond the standard library and system
@@ -20,6 +20,7 @@ respective build tools.
 
 ```
 MPP-Viewer-Mac/
+├── package.sh            builds one architecture's .app (and .pkg) — see the packaging section
 ├── App/                  Swift package — the native UI
 │   ├── Package.swift
 │   ├── run-dev.sh         dev-loop launcher — use this, not `swift run` (see below)
@@ -103,35 +104,64 @@ MPP_HELPER_PATH=/path/to/MppHelper ./run-dev.sh
 
 ## Building a distributable `.pkg` installer
 
-This produces the same kind of signed `.pkg` published under Releases: a release-configuration app,
-code-signed with a Developer ID, with a self-contained Helper bundled inside it (no system .NET
-required). It is **not notarized** — see TROUBLESHOOTING.md for what that means for anyone installing it.
+Releases ship one installer per architecture: `arm64` (Apple Silicon) and `x64` (Intel). Each is a
+release-configuration app, code-signed with a Developer ID, with a self-contained Helper for that
+architecture bundled inside it (no system .NET required). It is **not notarized** — see
+TROUBLESHOOTING.md for what that means for anyone installing it.
 
-1. **Publish the Helper as self-contained**, for the architecture you're targeting (`osx-arm64` for
-   Apple Silicon, `osx-x64` for Intel):
+The `package.sh` script runs every step below for one architecture:
+
+```
+./package.sh arm64 0.1.3 4     # version, then build number
+./package.sh x64   0.1.3 4
+```
+
+Output goes to `dist/<arch>/MPPViewer.app`. The app version and build number come from the arguments. Set `APP_SIGN_ID` (a "Developer ID Application" identity) to
+sign with Hardened Runtime; without it the app is only ad-hoc signed, which is fine for local testing.
+Typical release invocation:
+
+```
+APP_SIGN_ID="Developer ID Application: <Your Name> (<Team ID>)" \
+INSTALLER_SIGN_ID="Developer ID Installer: <Your Name> (<Team ID>)" \
+./package.sh x64 0.1.3 4
+```
+
+Set `INSTALLER_SIGN_ID` (a "Developer ID Installer" identity) to also produce
+`dist/MPPViewer-<version>-macOS-<arch>.pkg`. The script ends by launching the bundled Helper and
+checking it answers; on Apple Silicon the `x64` Helper runs under Rosetta 2 for that check.
+
+Either architecture can be built from either kind of Mac: `dotnet publish -r osx-x64` and
+`swift build --arch x86_64` both cross-compile on Apple Silicon. Swift may warn that the x86_64
+architecture is deprecated for newer deployment targets; that is expected and does not affect the build.
+
+The manual steps, if you want to do them by hand (shown for arm64; use `osx-x64`, `--arch x86_64` and
+`x64` for Intel):
+
+1. **Publish the Helper as self-contained** for the architecture you're targeting:
 
    ```
    cd Helper
    dotnet publish -c Release -r osx-arm64 --self-contained true \
-     -p:PublishSingleFile=false -o bin/publish/osx-arm64
+     -p:PublishSingleFile=false -o bin/publish/arm64
    ```
 
    This produces a whole directory (`MppHelper` plus every native library it needs), not a single file —
    `PublishSingleFile` is deliberately left off, since this app needs the directory layout intact to
-   code-sign every Mach-O inside it individually (see step 3).
+   code-sign every Mach-O inside it individually (see step 4).
 
-2. **Build the Swift app in release configuration:**
+2. **Build the Swift app in release configuration** for the same architecture:
 
    ```
    cd App
-   swift build -c release
+   swift build -c release --arch arm64
    ```
 
 3. **Assemble the `.app` bundle** — `Contents/MacOS/MPPViewerMac` (the release binary),
    `Contents/Resources/AppIcon.icns`, `Contents/Resources/Helper/` (the *entire* publish output
    directory from step 1 — `AppModel.defaultHelperURL()` looks for `Contents/Resources/Helper/MppHelper`
    specifically), and an `Info.plist` with a real `CFBundleIdentifier`, version, and
-   `LSMinimumSystemVersion`.
+   `LSMinimumSystemVersion`. Never mix architectures: an arm64 app must carry the arm64 Helper and an
+   Intel app the x64 Helper (`lipo -archs` on both should agree).
 
 4. **Code-sign everything, inside out** — every Mach-O binary/dylib under `Helper/`, then the main app
    executable, then the bundle itself, each with Hardened Runtime and the same Developer ID Application
@@ -204,7 +234,6 @@ List available signing identities with `security find-identity -v -p codesigning
 
 - **Notarization.** Deliberate — see above.
 - **Continuous integration.** There is no CI configuration in this repository yet.
-- **An automated packaging script.** The steps above are currently manual; a `package.sh` that runs them
-  in order would be a reasonable addition if this is built often enough to be worth it.
+- **Native Intel testing.** The x64 build is checked under Rosetta 2 only; it hasn't been run on Intel hardware.
 
 See `TROUBLESHOOTING.md` for build and runtime problems and how to diagnose them.

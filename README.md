@@ -1,14 +1,20 @@
 # MPP Viewer (macOS)
 
-Open and edit `.mpp` files on a Mac, without Microsoft Project. A native Swift/AppKit macOS app for
-viewing and editing Microsoft Project and related project-management file formats. It has a Gantt chart,
-Timeline, Network (PERT) diagram, Calendar (with three modes), Resources, a working-time calendar editor,
-project-budget tracking, and export.
+**Open and edit Microsoft Project files on a Mac, without Microsoft Project.** MPP Viewer reads `.mpp`,
+Project XML, Primavera P6, GanttProject, Asta Powerproject and more, and shows them as a Gantt chart,
+timeline, network diagram, calendar and resource sheet, with a critical path that recalculates as you edit.
+Native Swift and AppKit, free, MIT licensed, no account and no telemetry.
+
+![MPP Viewer showing a Gantt chart](docs/screenshots/gantt-view.png)
+
+| Network (PERT) | Timeline | Calendar (Team) |
+|---|---|---|
+| ![Network view](docs/screenshots/network-view.png) | ![Timeline view](docs/screenshots/timeline-view.png) | ![Team calendar](docs/screenshots/calendar-team-view.png) |
+
+**[Download](../../releases)** · [Website](https://ramos1053.github.io/MPP-Viewer-Mac/) ·
+[Installing](#installing) · [Building from source](BUILDING.md)
 
 This is a macOS port of an existing Windows WPF/.NET application (`MPP-Viewer`).
-
-**[ramos1053.github.io/MPP-Viewer-Mac](https://ramos1053.github.io/MPP-Viewer-Mac/)** has screenshots,
-the full format list and a download link.
 
 ## What it does
 
@@ -79,7 +85,7 @@ The app is two processes:
 See `BUILDING.md` for how to build and run both halves from source, and the in-app Help (Help menu) for
 complete, searchable documentation of every feature from a user's point of view.
 
-## Screenshots
+## More screenshots
 
 | Gantt | Network |
 |---|---|
@@ -103,15 +109,21 @@ complete, searchable documentation of every feature from a user's point of view.
 
 ## Installing
 
-Download the latest `.pkg` from [Releases](../../releases) and run it. Requires Apple Silicon (arm64)
-and macOS 26 or later.
+Download a `.pkg` from [Releases](../../releases) and run it. Installers are per architecture: the one
+with `x64` in its name is for **Intel Macs**, the other (named `arm64`, or with no architecture in the
+name on older releases) is for **Apple Silicon**. Apple menu ▸ About This Mac shows which chip you have.
+Requires macOS 26 or later.
+
+**Intel status:** the Intel installer is published as a pre-release. It has been built, signed and
+checked under Rosetta 2 on an Apple Silicon Mac, but not yet run on a real Intel Mac. If you have one,
+please try it and report back on [issue 3](../../issues/3).
 
 The installer and the app inside it are both code-signed with a Developer ID, but **not notarized**.
 macOS Gatekeeper will still flag a downloaded, unnotarized app on first launch. Open System Settings ▸
 Privacy & Security after the first blocked attempt and choose "Open Anyway" next to the app's name; see
 TROUBLESHOOTING.md if that option doesn't appear.
 
-Prefer not to run an unnotarized download, or need an Intel build? Build it from source instead. See
+Prefer not to run an unnotarized download? Build it from source instead. See
 `BUILDING.md`. You'll need Xcode (for the Swift app) and the .NET SDK (for the file-reading Helper).
 There's no `.xcodeproj` to double-click. The app is a Swift package, so you either open
 `App/Package.swift` directly in Xcode or build it from the command line with `swift build`; both are
@@ -120,4 +132,4 @@ covered in `BUILDING.md`.
 ## Status
 
 Actively developed, not yet feature-frozen. A signed, unnotarized `.pkg` installer is available under
-Releases; building from source remains fully supported. See `BUILDING.md`.
+Releases, one per architecture (arm64 and x64); building from source remains fully supported. See `BUILDING.md`.
